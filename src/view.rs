@@ -127,16 +127,16 @@ impl<'a> View<'a> {
     ///
     /// Returns false if the view does not point to any NBT tag.
     pub fn is_container(&self) -> bool {
-        match self.get() {
+        matches!(
+            self.get(),
             Some(
                 NBTTag::Compound(_)
-                | NBTTag::List(_)
-                | NBTTag::ByteArray(_)
-                | NBTTag::IntArray(_)
-                | NBTTag::LongArray(_),
-            ) => true,
-            _ => false,
-        }
+                    | NBTTag::List(_)
+                    | NBTTag::ByteArray(_)
+                    | NBTTag::IntArray(_)
+                    | NBTTag::LongArray(_),
+            )
+        )
     }
 
     /// Get an entry from the underlying tag by its index.
@@ -157,7 +157,7 @@ impl<'a> View<'a> {
     pub fn at_key(&self, key: impl AsRef<str>) -> Self {
         match self.tag {
             InnerView::Ok(Cow::Borrowed(NBTTag::Compound(v))) => Self {
-                tag: InnerView::from_opt(v.get(key.as_ref()).map(|v| Cow::Borrowed(v))),
+                tag: InnerView::from_opt(v.get(key.as_ref()).map(Cow::Borrowed)),
             },
             InnerView::Ok(Cow::Owned(NBTTag::Compound(_))) => unreachable!(),
             InnerView::Ok(_) => Self {
@@ -178,22 +178,22 @@ impl<'a> View<'a> {
         Self {
             tag: match &self.tag {
                 InnerView::Ok(Cow::Borrowed(NBTTag::List(v))) => {
-                    InnerView::from_opt(v.get(index).map(|v| Cow::Borrowed(v)))
+                    InnerView::from_opt(v.get(index).map(Cow::Borrowed))
                 }
                 InnerView::Ok(Cow::Borrowed(NBTTag::ByteArray(v))) => InnerView::from_opt(
                     v.get(index)
                         .map(|v| NBTTag::Byte(tag::Byte(*v)))
-                        .map(|v| Cow::Owned(v)),
+                        .map(Cow::Owned),
                 ),
                 InnerView::Ok(Cow::Borrowed(NBTTag::IntArray(v))) => InnerView::from_opt(
                     v.get(index)
                         .map(|v| NBTTag::Int(tag::Int(*v)))
-                        .map(|v| Cow::Owned(v)),
+                        .map(Cow::Owned),
                 ),
                 InnerView::Ok(Cow::Borrowed(NBTTag::LongArray(v))) => InnerView::from_opt(
                     v.get(index)
                         .map(|v| NBTTag::Long(tag::Long(*v)))
-                        .map(|v| Cow::Owned(v)),
+                        .map(Cow::Owned),
                 ),
                 InnerView::Ok(Cow::Owned(NBTTag::List(_))) => unreachable!(),
                 InnerView::Ok(Cow::Owned(NBTTag::ByteArray(_))) => unreachable!(),
@@ -209,14 +209,14 @@ impl<'a> View<'a> {
     /// and returned.
     pub fn any_int(&self) -> Result<i64, ViewError> {
         match &self.tag {
-            InnerView::Ok(Cow::Borrowed(NBTTag::Long(s))) => Ok(s.0.clone()),
-            InnerView::Ok(Cow::Borrowed(NBTTag::Int(s))) => Ok(s.0.clone() as i64),
-            InnerView::Ok(Cow::Borrowed(NBTTag::Short(s))) => Ok(s.0.clone() as i64),
-            InnerView::Ok(Cow::Borrowed(NBTTag::Byte(s))) => Ok(s.0.clone() as i64),
-            InnerView::Ok(Cow::Owned(NBTTag::Long(s))) => Ok(s.0.clone()),
-            InnerView::Ok(Cow::Owned(NBTTag::Int(s))) => Ok(s.0.clone() as i64),
+            InnerView::Ok(Cow::Borrowed(NBTTag::Long(s))) => Ok(s.0),
+            InnerView::Ok(Cow::Borrowed(NBTTag::Int(s))) => Ok(s.0 as i64),
+            InnerView::Ok(Cow::Borrowed(NBTTag::Short(s))) => Ok(s.0 as i64),
+            InnerView::Ok(Cow::Borrowed(NBTTag::Byte(s))) => Ok(s.0 as i64),
+            InnerView::Ok(Cow::Owned(NBTTag::Long(s))) => Ok(s.0),
+            InnerView::Ok(Cow::Owned(NBTTag::Int(s))) => Ok(s.0 as i64),
             InnerView::Ok(Cow::Owned(NBTTag::Short(_))) => unreachable!(),
-            InnerView::Ok(Cow::Owned(NBTTag::Byte(s))) => Ok(s.0.clone() as i64),
+            InnerView::Ok(Cow::Owned(NBTTag::Byte(s))) => Ok(s.0 as i64),
             InnerView::Ok(t) => Err(ViewError::MismatchedType {
                 expected: NBTTagType::Long,
                 found: t.tag_type(),
@@ -229,8 +229,8 @@ impl<'a> View<'a> {
     /// an f64 and returned.
     pub fn any_float(&self) -> Result<f64, ViewError> {
         match &self.tag {
-            InnerView::Ok(Cow::Borrowed(NBTTag::Double(s))) => Ok(s.0.clone()),
-            InnerView::Ok(Cow::Borrowed(NBTTag::Float(s))) => Ok(s.0.clone() as f64),
+            InnerView::Ok(Cow::Borrowed(NBTTag::Double(s))) => Ok(s.0),
+            InnerView::Ok(Cow::Borrowed(NBTTag::Float(s))) => Ok(s.0 as f64),
             InnerView::Ok(Cow::Owned(NBTTag::Double(_))) => unreachable!(),
             InnerView::Ok(Cow::Owned(NBTTag::Float(_))) => unreachable!(),
             InnerView::Ok(t) => Err(ViewError::MismatchedType {
@@ -244,7 +244,7 @@ impl<'a> View<'a> {
     /// Returns a reference to a [tag::Compound] if the underlying tag's type matches this.
     pub fn compound(&self) -> Result<&'a tag::Compound, ViewError> {
         match &self.tag {
-            InnerView::Ok(Cow::Borrowed(NBTTag::Compound(s))) => Ok(&s),
+            InnerView::Ok(Cow::Borrowed(NBTTag::Compound(s))) => Ok(s),
             InnerView::Ok(Cow::Owned(NBTTag::Compound(_))) => unreachable!(),
             InnerView::Ok(t) => Err(ViewError::MismatchedType {
                 expected: NBTTagType::Compound,
@@ -270,8 +270,8 @@ impl<'a> View<'a> {
     /// Returns the byte value of the tag if the underlying tag is a [tag::Byte].
     pub fn byte(&self) -> Result<u8, ViewError> {
         match &self.tag {
-            InnerView::Ok(Cow::Borrowed(NBTTag::Byte(s))) => Ok(s.0.clone()),
-            InnerView::Ok(Cow::Owned(NBTTag::Byte(s))) => Ok(s.0.clone()),
+            InnerView::Ok(Cow::Borrowed(NBTTag::Byte(s))) => Ok(s.0),
+            InnerView::Ok(Cow::Owned(NBTTag::Byte(s))) => Ok(s.0),
             InnerView::Ok(t) => Err(ViewError::MismatchedType {
                 expected: NBTTagType::Byte,
                 found: t.tag_type(),
@@ -283,7 +283,7 @@ impl<'a> View<'a> {
     /// Returns the short value of the tag if the underlying tag is a [tag::Short].
     pub fn short(&self) -> Result<i16, ViewError> {
         match &self.tag {
-            InnerView::Ok(Cow::Borrowed(NBTTag::Short(s))) => Ok(s.0.clone()),
+            InnerView::Ok(Cow::Borrowed(NBTTag::Short(s))) => Ok(s.0),
             InnerView::Ok(Cow::Owned(NBTTag::Short(_))) => unreachable!(),
             InnerView::Ok(t) => Err(ViewError::MismatchedType {
                 expected: NBTTagType::Short,
@@ -296,8 +296,8 @@ impl<'a> View<'a> {
     /// Returns the int value of the tag if the underlying tag is a [tag::Int].
     pub fn int(&self) -> Result<i32, ViewError> {
         match &self.tag {
-            InnerView::Ok(Cow::Borrowed(NBTTag::Int(s))) => Ok(s.0.clone()),
-            InnerView::Ok(Cow::Owned(NBTTag::Int(s))) => Ok(s.0.clone()),
+            InnerView::Ok(Cow::Borrowed(NBTTag::Int(s))) => Ok(s.0),
+            InnerView::Ok(Cow::Owned(NBTTag::Int(s))) => Ok(s.0),
             InnerView::Ok(t) => Err(ViewError::MismatchedType {
                 expected: NBTTagType::Int,
                 found: t.tag_type(),
@@ -309,8 +309,8 @@ impl<'a> View<'a> {
     /// Returns the long value of the tag if the underlying tag is a [tag::Long].
     pub fn long(&self) -> Result<i64, ViewError> {
         match &self.tag {
-            InnerView::Ok(Cow::Borrowed(NBTTag::Long(s))) => Ok(s.0.clone()),
-            InnerView::Ok(Cow::Owned(NBTTag::Long(s))) => Ok(s.0.clone()),
+            InnerView::Ok(Cow::Borrowed(NBTTag::Long(s))) => Ok(s.0),
+            InnerView::Ok(Cow::Owned(NBTTag::Long(s))) => Ok(s.0),
             InnerView::Ok(t) => Err(ViewError::MismatchedType {
                 expected: NBTTagType::Long,
                 found: t.tag_type(),
@@ -322,7 +322,7 @@ impl<'a> View<'a> {
     /// Returns the float value of the tag if the underlying tag is a [tag::Float].
     pub fn float(&self) -> Result<f32, ViewError> {
         match &self.tag {
-            InnerView::Ok(Cow::Borrowed(NBTTag::Float(s))) => Ok(s.0.clone()),
+            InnerView::Ok(Cow::Borrowed(NBTTag::Float(s))) => Ok(s.0),
             InnerView::Ok(Cow::Owned(NBTTag::Float(_))) => unreachable!(),
             InnerView::Ok(t) => Err(ViewError::MismatchedType {
                 expected: NBTTagType::Float,
@@ -335,7 +335,7 @@ impl<'a> View<'a> {
     /// Returns the double value of the tag if the underlying tag is a [tag::Double].
     pub fn double(&self) -> Result<f64, ViewError> {
         match &self.tag {
-            InnerView::Ok(Cow::Borrowed(NBTTag::Double(s))) => Ok(s.0.clone()),
+            InnerView::Ok(Cow::Borrowed(NBTTag::Double(s))) => Ok(s.0),
             InnerView::Ok(Cow::Owned(NBTTag::Double(_))) => unreachable!(),
             InnerView::Ok(t) => Err(ViewError::MismatchedType {
                 expected: NBTTagType::Double,
@@ -434,7 +434,7 @@ impl<'a> Iterator for ViewIterator<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         match &mut self.0 {
             InnerViewIterator::Compound(v) => v.next().map(|(_, v)| View::new(v)),
-            InnerViewIterator::List(v) => v.next().map(|v| View::new(v)),
+            InnerViewIterator::List(v) => v.next().map(View::new),
             InnerViewIterator::ByteArray(v) => v.next().map(|v| View {
                 tag: InnerView::Ok(Cow::Owned(NBTTag::Byte(tag::Byte(*v)))),
             }),
