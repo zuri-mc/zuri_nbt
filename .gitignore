@@ -1,0 +1,12 @@
+.DS_Store
+
+# IDE
+.idea/
+.fleet/
+
+# direnv
+.envrc
+.direnv/
+
+# Rust
+/target
