@@ -1,6 +1,6 @@
 //! Implementations for type conversions from and to [NBTTag] using [From] and [TryFrom] and other
 //! useful traits and methods.
-use crate::err::{ErrorPath, ReadError};
+use crate::err::{NBTError, ReadError};
 use crate::reader::Reader;
 use crate::writer::Writer;
 use crate::{reader, tag, writer, NBTTag, NBTTagType};
@@ -152,7 +152,7 @@ macro_rules! impl_tagtype {
                     Ok(t)
                 } else {
                     let t = $enum_variant;
-                    Err(ErrorPath::new(ReadError::UnexpectedTag(
+                    Err(NBTError::new(ReadError::UnexpectedTag(
                         t.to_string(),
                         typ.to_string(),
                     )))

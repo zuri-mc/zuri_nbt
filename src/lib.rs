@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 use std::io::{Read, Write};
 
-use crate::err::{ErrorPath, Path, PathPart, ReadError, WriteError};
+use crate::err::{NBTError, Path, PathPart, ReadError, WriteError};
 use crate::reader::Reader;
 use crate::view::View;
 use crate::writer::Writer;
@@ -144,7 +144,7 @@ impl NBTTag {
                 let content_type = r.u8(buf)?;
                 let len = r.i32(buf)?;
                 let len: usize = len.try_into().map_err(|_| {
-                    ErrorPath::new(ReadError::SeqLengthViolation(
+                    NBTError::new(ReadError::SeqLengthViolation(
                         // i32 has a lower limit on 32 bit machines.
                         usize::MAX.min(i32::MAX as usize),
                         len,
@@ -163,7 +163,7 @@ impl NBTTag {
             7 => NBTTag::ByteArray(r.u8_vec(buf)?.into()),
             11 => NBTTag::IntArray(r.i32_vec(buf)?.into()),
             12 => NBTTag::LongArray(r.i64_vec(buf)?.into()),
-            other => return Err(ErrorPath::new(ReadError::UnknownTag(other))),
+            other => return Err(NBTError::new(ReadError::UnknownTag(other))),
         })
     }
 
@@ -196,7 +196,7 @@ impl NBTTag {
                 w.write_i32(buf, x.len() as i32)?;
                 for (i, v) in x.0.iter().enumerate() {
                     if v.tag_id() != first_id {
-                        return Err(ErrorPath::new_with_path(
+                        return Err(NBTError::new_with_path(
                             WriteError::UnexpectedTag(
                                 x[0].tag_type().to_string(),
                                 v.tag_type().to_string(),

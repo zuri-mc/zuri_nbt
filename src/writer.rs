@@ -1,10 +1,10 @@
 //! See [Writer].
 use std::io::Write;
 
-use crate::err::{ErrorPath, PathPart, WriteError};
+use crate::err::{NBTError, PathPart, WriteError};
 
 /// A short notation for the result type used in the [Writer].
-pub type Res = Result<(), ErrorPath<WriteError>>;
+pub type Res = Result<(), NBTError<WriteError>>;
 
 /// A trait that can be implemented to alter how basic NBT types are written.
 ///
@@ -39,7 +39,7 @@ pub trait Writer {
     /// Writes a variable-length string.
     fn write_string<W: Write>(&mut self, writer: &mut W, x: &str) -> Res {
         if x.len() > i16::MAX as usize {
-            return Err(ErrorPath::new(WriteError::SeqLengthViolation(
+            return Err(NBTError::new(WriteError::SeqLengthViolation(
                 i16::MAX as usize,
                 x.len(),
             )));
@@ -56,7 +56,7 @@ pub trait Writer {
     /// Writes variable-length array of 8-bit unsigned integers.
     fn write_u8_vec<W: Write>(&mut self, writer: &mut W, x: &[u8]) -> Res {
         if x.len() > i32::MAX as usize {
-            return Err(ErrorPath::new(WriteError::SeqLengthViolation(
+            return Err(NBTError::new(WriteError::SeqLengthViolation(
                 i32::MAX as usize,
                 x.len(),
             )));
@@ -72,7 +72,7 @@ pub trait Writer {
     /// Writes variable-length array of 32-bit signed integers.
     fn write_i32_vec<W: Write>(&mut self, writer: &mut W, x: &[i32]) -> Res {
         if x.len() > i32::MAX as usize {
-            return Err(ErrorPath::new(WriteError::SeqLengthViolation(
+            return Err(NBTError::new(WriteError::SeqLengthViolation(
                 i32::MAX as usize,
                 x.len(),
             )));
@@ -88,7 +88,7 @@ pub trait Writer {
     /// Writes variable-length array of 64-bit signed integers.
     fn write_i64_vec<W: Write>(&mut self, writer: &mut W, x: &[i64]) -> Res {
         if x.len() > i32::MAX as usize {
-            return Err(ErrorPath::new(WriteError::SeqLengthViolation(
+            return Err(NBTError::new(WriteError::SeqLengthViolation(
                 i32::MAX as usize,
                 x.len(),
             )));

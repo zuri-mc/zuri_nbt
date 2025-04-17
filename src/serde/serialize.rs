@@ -1,4 +1,4 @@
-use crate::err::{ErrorPath, PathPart};
+use crate::err::{NBTError, PathPart};
 use crate::serde::SerializeError;
 use crate::{err, tag, NBTTag};
 use serde::{ser, Serialize};
@@ -18,7 +18,7 @@ fn wrap_enum(variant: &str, value: NBTTag) -> NBTTag {
 
 impl ser::Serializer for Serializer {
     type Ok = NBTTag;
-    type Error = ErrorPath<SerializeError>;
+    type Error = NBTError<SerializeError>;
 
     type SerializeMap = CompoundSerializer;
     type SerializeStruct = CompoundSerializer;
@@ -212,7 +212,7 @@ impl ser::Serializer for Serializer {
                     list.push(
                         <NBTTag as TryInto<tag::Byte>>::try_into(item.serialize(Serializer)?)
                             .map_err(|_| {
-                                ErrorPath::new_with_path(
+                                NBTError::new_with_path(
                                     SerializeError::MismatchedListType,
                                     err::Path::from_single(err::PathPart::Element(i + 1)),
                                 )
@@ -229,7 +229,7 @@ impl ser::Serializer for Serializer {
                     list.push(
                         <NBTTag as TryInto<tag::Int>>::try_into(item.serialize(Serializer)?)
                             .map_err(|_| {
-                                ErrorPath::new_with_path(
+                                NBTError::new_with_path(
                                     SerializeError::MismatchedListType,
                                     err::Path::from_single(err::PathPart::Element(i + 1)),
                                 )
@@ -246,7 +246,7 @@ impl ser::Serializer for Serializer {
                     list.push(
                         <NBTTag as TryInto<tag::Long>>::try_into(item.serialize(Serializer)?)
                             .map_err(|_| {
-                                ErrorPath::new_with_path(
+                                NBTError::new_with_path(
                                     SerializeError::MismatchedListType,
                                     err::Path::from_single(err::PathPart::Element(i + 1)),
                                 )
@@ -264,7 +264,7 @@ impl ser::Serializer for Serializer {
                 for (i, item) in iter.enumerate() {
                     let new_value = item.serialize(Serializer)?;
                     if new_value.tag_id() != tag_id {
-                        return Err(ErrorPath::new_with_path(
+                        return Err(NBTError::new_with_path(
                             SerializeError::MismatchedListType,
                             err::Path::from_single(err::PathPart::Element(i + 1)),
                         ));
@@ -341,7 +341,7 @@ impl ser::SerializeMap for CompoundSerializer {
         let key_str = if let NBTTag::String(str) = key.serialize(Serializer)? {
             str
         } else {
-            return Err(ErrorPath::new(SerializeError::NonStringKey));
+            return Err(NBTError::new(SerializeError::NonStringKey));
         };
         self.v.insert(
             key_str.0,

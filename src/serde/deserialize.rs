@@ -1,5 +1,5 @@
 use crate::err::PathPart;
-use crate::serde::{DeserializeError, ErrorPath};
+use crate::serde::{DeserializeError, NBTError};
 use crate::NBTTag;
 use serde::de;
 use serde::de::{DeserializeSeed, Visitor};
@@ -16,7 +16,7 @@ impl<'de> Deserializer<'de> {
 }
 
 impl<'de> de::Deserializer<'de> for Deserializer<'de> {
-    type Error = ErrorPath<DeserializeError>;
+    type Error = NBTError<DeserializeError>;
 
     fn deserialize_any<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
@@ -44,7 +44,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
     {
         match self.nbt {
             NBTTag::Byte(v) => visitor.visit_bool(v.0 != 0),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -54,7 +54,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
     {
         match self.nbt {
             NBTTag::Byte(v) => visitor.visit_i8(v.0 as i8),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -64,7 +64,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
     {
         match self.nbt {
             NBTTag::Short(v) => visitor.visit_i16(v.0),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -74,7 +74,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
     {
         match self.nbt {
             NBTTag::Int(v) => visitor.visit_i32(v.0),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -84,7 +84,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
     {
         match self.nbt {
             NBTTag::Long(v) => visitor.visit_i64(v.0),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -96,10 +96,10 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
             visitor.visit_i128(u128::from_le_bytes(
                 v.0[0..std::mem::size_of::<i128>()]
                     .try_into()
-                    .map_err(|_| ErrorPath::new(DeserializeError::InvalidConversion))?,
+                    .map_err(|_| NBTError::new(DeserializeError::InvalidConversion))?,
             ) as i128)
         } else {
-            Err(ErrorPath::new(DeserializeError::UnexpectedTag))
+            Err(NBTError::new(DeserializeError::UnexpectedTag))
         }
     }
 
@@ -109,7 +109,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
     {
         match self.nbt {
             NBTTag::Byte(v) => visitor.visit_u8(v.0),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -119,7 +119,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
     {
         match self.nbt {
             NBTTag::Short(v) => visitor.visit_u16(v.0 as u16),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -129,7 +129,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
     {
         match self.nbt {
             NBTTag::Int(v) => visitor.visit_u32(v.0 as u32),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -139,7 +139,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
     {
         match self.nbt {
             NBTTag::Long(v) => visitor.visit_u64(v.0 as u64),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -151,10 +151,10 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
             visitor.visit_u128(u128::from_le_bytes(
                 v.0[0..std::mem::size_of::<u128>()]
                     .try_into()
-                    .map_err(|_| ErrorPath::new(DeserializeError::InvalidConversion))?,
+                    .map_err(|_| NBTError::new(DeserializeError::InvalidConversion))?,
             ))
         } else {
-            Err(ErrorPath::new(DeserializeError::UnexpectedTag))
+            Err(NBTError::new(DeserializeError::UnexpectedTag))
         }
     }
 
@@ -164,7 +164,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
     {
         match self.nbt {
             NBTTag::Float(v) => visitor.visit_f32(v.0),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -174,7 +174,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
     {
         match self.nbt {
             NBTTag::Double(v) => visitor.visit_f64(v.0),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -185,9 +185,9 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
         match self.nbt {
             NBTTag::Int(v) => visitor.visit_char(
                 char::from_u32(v.0 as u32)
-                    .ok_or(ErrorPath::new(DeserializeError::InvalidConversion))?,
+                    .ok_or(NBTError::new(DeserializeError::InvalidConversion))?,
             ),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -197,7 +197,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
     {
         match self.nbt {
             NBTTag::String(v) => visitor.visit_borrowed_str(v.0.as_str()),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -207,7 +207,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
     {
         match self.nbt {
             NBTTag::String(v) => visitor.visit_borrowed_str(v.0.as_str()),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -217,7 +217,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
     {
         match self.nbt {
             NBTTag::ByteArray(v) => visitor.visit_borrowed_bytes(v.0.as_slice()),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -227,7 +227,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
     {
         match self.nbt {
             NBTTag::ByteArray(v) => visitor.visit_byte_buf(v.0.clone()),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -239,11 +239,11 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
             let variant = map
                 .0
                 .get("variant")
-                .ok_or(ErrorPath::new(DeserializeError::UnexpectedVariant))?;
+                .ok_or(NBTError::new(DeserializeError::UnexpectedVariant))?;
             let variant = if let NBTTag::String(v) = variant {
                 v.0.as_str()
             } else {
-                return Err(ErrorPath::new(DeserializeError::UnexpectedVariant));
+                return Err(NBTError::new(DeserializeError::UnexpectedVariant));
             };
             match variant {
                 "None" => visitor.visit_none(),
@@ -251,13 +251,13 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
                     let value = map
                         .0
                         .get("value")
-                        .ok_or(ErrorPath::new(DeserializeError::UnexpectedVariant))?;
+                        .ok_or(NBTError::new(DeserializeError::UnexpectedVariant))?;
                     visitor.visit_some(Deserializer::new(value))
                 }
-                _ => Err(ErrorPath::new(DeserializeError::UnexpectedVariant)),
+                _ => Err(NBTError::new(DeserializeError::UnexpectedVariant)),
             }
         } else {
-            Err(ErrorPath::new(DeserializeError::UnexpectedTag))
+            Err(NBTError::new(DeserializeError::UnexpectedTag))
         }
     }
 
@@ -268,7 +268,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
         if let NBTTag::Compound(_) = self.nbt {
             visitor.visit_unit()
         } else {
-            Err(ErrorPath::new(DeserializeError::UnexpectedTag))
+            Err(NBTError::new(DeserializeError::UnexpectedTag))
         }
     }
 
@@ -312,7 +312,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
             NBTTag::LongArray(v) => {
                 visitor.visit_seq(de::value::SeqDeserializer::new(v.0.iter().cloned()))
             }
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -326,7 +326,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
                 next: 0,
             })
         } else {
-            Err(ErrorPath::new(DeserializeError::UnexpectedTag))
+            Err(NBTError::new(DeserializeError::UnexpectedTag))
         }
     }
 
@@ -352,7 +352,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
                 next_value: None,
             })
         } else {
-            Err(ErrorPath::new(DeserializeError::UnexpectedTag))
+            Err(NBTError::new(DeserializeError::UnexpectedTag))
         }
     }
 
@@ -380,7 +380,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
         if let NBTTag::Compound(map) = self.nbt {
             visitor.visit_enum(EnumAccess { map: &map.0 })
         } else {
-            Err(ErrorPath::new(DeserializeError::UnexpectedTag))
+            Err(NBTError::new(DeserializeError::UnexpectedTag))
         }
     }
 
@@ -390,7 +390,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
     {
         match self.nbt {
             NBTTag::String(v) => visitor.visit_str(v.0.as_str()),
-            _ => Err(ErrorPath::new(DeserializeError::UnexpectedTag)),
+            _ => Err(NBTError::new(DeserializeError::UnexpectedTag)),
         }
     }
 
@@ -403,7 +403,7 @@ impl<'de> de::Deserializer<'de> for Deserializer<'de> {
 }
 
 impl<'de> de::VariantAccess<'de> for Deserializer<'de> {
-    type Error = ErrorPath<DeserializeError>;
+    type Error = NBTError<DeserializeError>;
 
     fn unit_variant(self) -> Result<(), Self::Error> {
         Ok(())
@@ -440,7 +440,7 @@ struct EnumAccess<'de> {
 }
 
 impl<'de> de::EnumAccess<'de> for EnumAccess<'de> {
-    type Error = ErrorPath<DeserializeError>;
+    type Error = NBTError<DeserializeError>;
     type Variant = Deserializer<'de>;
 
     fn variant_seed<V>(self, seed: V) -> Result<(V::Value, Self::Variant), Self::Error>
@@ -454,10 +454,10 @@ impl<'de> de::EnumAccess<'de> for EnumAccess<'de> {
                     Deserializer::new(value),
                 ))
             } else {
-                Err(ErrorPath::new(DeserializeError::UnexpectedVariant))
+                Err(NBTError::new(DeserializeError::UnexpectedVariant))
             }
         } else {
-            Err(ErrorPath::new(DeserializeError::UnexpectedVariant))
+            Err(NBTError::new(DeserializeError::UnexpectedVariant))
         }
     }
 }
@@ -468,7 +468,7 @@ struct ListAccess<'de, I: Iterator<Item = &'de NBTTag>> {
 }
 
 impl<'de, I: Iterator<Item = &'de NBTTag>> de::SeqAccess<'de> for ListAccess<'de, I> {
-    type Error = ErrorPath<DeserializeError>;
+    type Error = NBTError<DeserializeError>;
 
     fn next_element_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>, Self::Error>
     where
@@ -495,7 +495,7 @@ struct TupleAccess<'de> {
 }
 
 impl<'de> de::SeqAccess<'de> for TupleAccess<'de> {
-    type Error = ErrorPath<DeserializeError>;
+    type Error = NBTError<DeserializeError>;
 
     fn next_element_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>, Self::Error>
     where
@@ -523,7 +523,7 @@ struct CompoundAccess<'de> {
 }
 
 impl<'de> de::MapAccess<'de> for CompoundAccess<'de> {
-    type Error = ErrorPath<DeserializeError>;
+    type Error = NBTError<DeserializeError>;
 
     fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>, Self::Error>
     where

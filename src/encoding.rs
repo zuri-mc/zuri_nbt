@@ -4,7 +4,7 @@
 //!  - [BigEndian]
 //!  - [LittleEndian]
 //!  - [NetworkLittleEndian]
-use crate::err::{ErrorPath, PathPart, ReadError, WriteError};
+use crate::err::{NBTError, PathPart, ReadError, WriteError};
 use crate::reader::Reader;
 use crate::writer::Writer;
 use crate::{reader, writer};
@@ -179,7 +179,7 @@ impl Reader for NetworkLittleEndian {
                 return Ok(if v & 1 != 0 { -x } else { x });
             }
         }
-        Err(ErrorPath::new(ReadError::Custom(
+        Err(NBTError::new(ReadError::Custom(
             "varint overflows integer".to_string(),
         )))
     }
@@ -195,7 +195,7 @@ impl Reader for NetworkLittleEndian {
                 return Ok(if v & 1 != 0 { -x } else { x });
             }
         }
-        Err(ErrorPath::new(ReadError::Custom(
+        Err(NBTError::new(ReadError::Custom(
             "varint overflows integer".to_string(),
         )))
     }
@@ -225,7 +225,7 @@ impl Reader for NetworkLittleEndian {
                     break 'var_len v;
                 }
             }
-            return Err(ErrorPath::new(ReadError::Custom(
+            return Err(NBTError::new(ReadError::Custom(
                 "varint overflows integer".to_string(),
             )));
         };
@@ -238,7 +238,7 @@ impl Reader for NetworkLittleEndian {
             );
         }
 
-        String::from_utf8(str_reader).map_err(|err| ErrorPath::new(ReadError::from(err)))
+        String::from_utf8(str_reader).map_err(|err| NBTError::new(ReadError::from(err)))
     }
 }
 
@@ -291,7 +291,7 @@ impl Writer for NetworkLittleEndian {
 
     fn write_string<W: Write>(&mut self, buf: &mut W, x: &str) -> writer::Res {
         if x.len() > i16::MAX as usize {
-            return Err(ErrorPath::new(WriteError::SeqLengthViolation(
+            return Err(NBTError::new(WriteError::SeqLengthViolation(
                 i16::MAX as usize,
                 x.len(),
             )));
