@@ -2,15 +2,13 @@
 use std::collections::VecDeque;
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
+use std::io;
 use std::string::FromUtf8Error;
 use thiserror::Error;
 
 /// An error that can occur while reading NBT data from a buffer.
 #[derive(Error, Debug)]
 pub enum ReadError {
-    /// Occurs when the buffer is smaller than the expected size.
-    #[error("unexpectedly reached end of buffer")]
-    UnexpectedEOF,
     /// Occurs when the reader finds a tag type while reading that is not part of the expected tag
     /// types.
     #[error("expected tag {0}, found {1}")]
@@ -25,6 +23,9 @@ pub enum ReadError {
     /// A byte sequence could not be read as a valid UTF-8 byte sequence.
     #[error("could not decode string: {0}")]
     InvalidString(#[from] FromUtf8Error),
+    /// An error occurred in the underlying IO implementation.
+    #[error("io error: {0}")]
+    IoError(#[from] io::Error),
     /// A custom variant for errors other than the provided variants.
     #[error("{0}")]
     Custom(String),
@@ -40,6 +41,9 @@ pub enum WriteError {
     /// type.
     #[error("sequence length must be between 0 and {0}, but got {1}")]
     SeqLengthViolation(usize, usize),
+    /// An error occurred in the underlying IO implementation.
+    #[error("io error: {0}")]
+    IoError(#[from] io::Error),
     /// A custom variant for errors other than the provided variants.
     #[error("{0}")]
     Custom(String),
@@ -123,6 +127,24 @@ impl<I: PartialEq> PartialEq for ErrorPath<I> {
 }
 
 impl<I: Eq> Eq for ErrorPath<I> {}
+
+impl<T> From<T> for ErrorPath<ReadError>
+where
+    ReadError: From<T>,
+{
+    fn from(value: T) -> Self {
+        ErrorPath::new(value.into())
+    }
+}
+
+impl<T> From<T> for ErrorPath<WriteError>
+where
+    WriteError: From<T>,
+{
+    fn from(value: T) -> Self {
+        ErrorPath::new(value.into())
+    }
+}
 
 /// A 'path' in a rust type that indicates where an error occurred.
 #[derive(Debug, Default, Clone, Eq, PartialEq)]

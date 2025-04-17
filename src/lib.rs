@@ -3,12 +3,12 @@
 
 use std::collections::HashMap;
 use std::fmt::Debug;
+use std::io::{Read, Write};
 
 use crate::err::{ErrorPath, Path, PathPart, ReadError, WriteError};
 use crate::reader::Reader;
 use crate::view::View;
 use crate::writer::Writer;
-use bytes::{Buf, BufMut};
 use strum_macros::{Display, IntoStaticStr};
 
 pub mod encoding;
@@ -101,21 +101,23 @@ impl NBTTag {
 
     /// Attempts to read the data from a buffer into an NBT value using the specified [Reader]
     /// encoding.
-    pub fn read(buf: &mut impl Buf, mut r: impl Reader) -> reader::Res<Self> {
+    pub fn read<R: Read>(mut buf: R, mut r: impl Reader) -> reader::Res<Self> {
+        let buf = &mut buf;
         let tag_id = r.u8(buf)?;
         r.string(buf)?;
         Self::read_inner(buf, tag_id, &mut r)
     }
 
     /// Attempts to write the NBT data into a buffer using the specified [Writer] encoding.
-    pub fn write(&self, buf: &mut impl BufMut, mut w: impl Writer) -> writer::Res {
+    pub fn write<W: Write>(&self, mut buf: W, mut w: impl Writer) -> writer::Res {
+        let buf = &mut buf;
         w.write_u8(buf, self.tag_id())?;
         w.write_string(buf, "")?;
         self.write_inner(buf, &mut w)
     }
 
     /// Internal function used to read NBT data. Slightly differs from [Self::read].
-    fn read_inner(buf: &mut impl Buf, tag_id: u8, r: &mut impl Reader) -> reader::Res<Self> {
+    fn read_inner(buf: &mut impl Read, tag_id: u8, r: &mut impl Reader) -> reader::Res<Self> {
         Ok(match tag_id {
             1 => NBTTag::Byte(r.u8(buf)?.into()),
             2 => NBTTag::Short(r.i16(buf)?.into()),
@@ -166,7 +168,7 @@ impl NBTTag {
     }
 
     /// Internal function used to write NBT data. Slightly differs from [Self::write].
-    fn write_inner(&self, buf: &mut impl BufMut, w: &mut impl Writer) -> writer::Res {
+    fn write_inner(&self, buf: &mut impl Write, w: &mut impl Writer) -> writer::Res {
         match self {
             Self::Byte(x) => w.write_u8(buf, x.0)?,
             Self::Short(x) => w.write_i16(buf, x.0)?,
