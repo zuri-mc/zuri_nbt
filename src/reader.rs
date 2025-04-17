@@ -50,7 +50,7 @@ pub trait Reader {
             )));
         }
 
-        let mut str_buf = Vec::with_capacity(len as usize);
+        let mut str_buf = Vec::with_capacity(len.min(1024) as usize);
         for i in 0..len {
             str_buf.push(
                 self.u8(buf)
@@ -71,7 +71,7 @@ pub trait Reader {
             )));
         }
 
-        let mut vec_buf = Vec::with_capacity(len as usize);
+        let mut vec_buf = Vec::with_capacity(len.min(1024) as usize);
         for i in 0..len {
             vec_buf.push(
                 self.u8(buf)
@@ -92,7 +92,7 @@ pub trait Reader {
             )));
         }
 
-        let mut vec_buf = Vec::with_capacity(len as usize);
+        let mut vec_buf = Vec::with_capacity((len as usize).min(1024 / size_of::<i32>()));
         for i in 0..len {
             vec_buf.push(
                 self.i32(buf)
@@ -113,7 +113,7 @@ pub trait Reader {
             )));
         }
 
-        let mut vec_buf = Vec::with_capacity(len as usize);
+        let mut vec_buf = Vec::with_capacity((len as usize).min(1024 / size_of::<i64>()));
         for i in 0..len {
             vec_buf.push(
                 self.i64(buf)

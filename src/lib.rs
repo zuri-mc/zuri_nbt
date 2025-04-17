@@ -147,7 +147,7 @@ impl NBTTag {
                         len as usize,
                     )));
                 }
-                let mut vec = Vec::with_capacity(len as usize);
+                let mut vec = Vec::with_capacity((len as usize).min(1024 / size_of::<NBTTag>()));
                 for i in 0..len {
                     vec.push(
                         Self::read_inner(buf, content_type, r)
