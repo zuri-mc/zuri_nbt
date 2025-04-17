@@ -16,18 +16,18 @@ used in Minecraft: Java Edition, is also supported, however.
 NBT data can be constructed and written as follows:
 
 ```rust
-use std::collections::HashMap;
 use zuri_nbt::encoding::LittleEndian;
 use zuri_nbt::NBTTag;
+use zuri_nbt::tag;
 
-let mut nbt = HashMap::new();
-nbt.insert("name".to_string(), NBTTag::String("Zuri".to_string().into()));
-nbt.insert("age".to_string(), NBTTag::Int(18.into()));
+let nbt = tag::Compound::builder()
+  .with_string("name", "Zuri")
+  .with_int("age", 18)
+  .build();
 
 let mut buf = Vec::new();
-NBTTag::Compound(nbt.into()).write(&mut buf, LittleEndian)
-    .expect("Something went wrong while writing nbt");
- ```
+nbt.write(&mut buf, LittleEndian).expect("Something went wrong while writing nbt");
+```
 
 Reading NBT data can be done as follows:
 
@@ -43,7 +43,7 @@ let mut bytes: &[u8] = &[
     0x21, 0x00, 0x00, 0x00,
 ];
 
-let value = NBTTag::read(bytes, LittleEndian)
-    .expect("Something went wrong while reading nbt");
+let value = NBTTag::read(bytes, LittleEndian).expect("Something went wrong while reading nbt");
+
 assert_eq!(value, NBTTag::String("Hello World!".to_string().into()));
- ```
+```
