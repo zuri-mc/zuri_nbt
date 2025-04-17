@@ -240,7 +240,7 @@ impl Reader for NetworkLittleEndian {
             )));
         };
 
-        let mut str_buf = Vec::with_capacity(len as usize);
+        let mut str_buf = Vec::with_capacity(len.min(1024) as usize);
         for i in 0..len {
             str_buf.push(
                 self.u8(buf)
