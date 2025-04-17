@@ -141,13 +141,15 @@ impl NBTTag {
             9 => {
                 let content_type = r.u8(buf)?;
                 let len = r.i32(buf)?;
-                if len < 0 {
-                    return Err(ErrorPath::new(ReadError::SeqLengthViolation(
-                        i32::MAX as usize,
-                        len as usize,
-                    )));
-                }
-                let mut vec = Vec::with_capacity((len as usize).min(1024 / size_of::<NBTTag>()));
+                let len: usize = len.try_into().map_err(|_| {
+                    ErrorPath::new(ReadError::SeqLengthViolation(
+                        // i32 has a lower limit on 32 bit machines.
+                        usize::MAX.min(i32::MAX as usize),
+                        len,
+                    ))
+                })?;
+
+                let mut vec = Vec::with_capacity(len.min(1024 / size_of::<NBTTag>()));
                 for i in 0..len {
                     vec.push(
                         Self::read_inner(buf, content_type, r)

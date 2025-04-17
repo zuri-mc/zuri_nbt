@@ -43,14 +43,11 @@ pub trait Reader {
     /// Reads a variable-length string.
     fn string(&mut self, buf: &mut impl Buf) -> Res<String> {
         let len = self.i16(buf)?;
-        if len < 0 {
-            return Err(ErrorPath::new(ReadError::SeqLengthViolation(
-                i16::MAX as usize,
-                len as usize,
-            )));
-        }
+        let len: usize = len.try_into().map_err(|_| {
+            ErrorPath::new(ReadError::SeqLengthViolation(i16::MAX as usize, len as i32))
+        })?;
 
-        let mut str_buf = Vec::with_capacity(len.min(1024) as usize);
+        let mut str_buf = Vec::with_capacity(len.min(1024));
         for i in 0..len {
             str_buf.push(
                 self.u8(buf)
@@ -64,14 +61,15 @@ pub trait Reader {
     /// Reads variable-length array of 8-bit unsigned integers.
     fn u8_vec(&mut self, buf: &mut impl Buf) -> Res<Vec<u8>> {
         let len = self.i32(buf)?;
-        if len < 0 {
-            return Err(ErrorPath::new(ReadError::SeqLengthViolation(
-                i32::MAX as usize,
-                len as usize,
-            )));
-        }
+        let len: usize = len.try_into().map_err(|_| {
+            ErrorPath::new(ReadError::SeqLengthViolation(
+                // i32 has a lower limit on 32 bit machines.
+                usize::MAX.min(i32::MAX as usize),
+                len,
+            ))
+        })?;
 
-        let mut vec_buf = Vec::with_capacity(len.min(1024) as usize);
+        let mut vec_buf = Vec::with_capacity(len.min(1024));
         for i in 0..len {
             vec_buf.push(
                 self.u8(buf)
@@ -85,14 +83,15 @@ pub trait Reader {
     /// Reads variable-length array of 32-bit signed integers.
     fn i32_vec(&mut self, buf: &mut impl Buf) -> Res<Vec<i32>> {
         let len = self.i32(buf)?;
-        if len < 0 {
-            return Err(ErrorPath::new(ReadError::SeqLengthViolation(
-                i32::MAX as usize,
-                len as usize,
-            )));
-        }
+        let len: usize = len.try_into().map_err(|_| {
+            ErrorPath::new(ReadError::SeqLengthViolation(
+                // i32 has a lower limit on 32 bit machines.
+                usize::MAX.min(i32::MAX as usize),
+                len,
+            ))
+        })?;
 
-        let mut vec_buf = Vec::with_capacity((len as usize).min(1024 / size_of::<i32>()));
+        let mut vec_buf = Vec::with_capacity(len.min(1024 / size_of::<i32>()));
         for i in 0..len {
             vec_buf.push(
                 self.i32(buf)
@@ -106,14 +105,15 @@ pub trait Reader {
     /// Reads variable-length array of 64-bit signed integers.
     fn i64_vec(&mut self, buf: &mut impl Buf) -> Res<Vec<i64>> {
         let len = self.i32(buf)?;
-        if len < 0 {
-            return Err(ErrorPath::new(ReadError::SeqLengthViolation(
-                i32::MAX as usize,
-                len as usize,
-            )));
-        }
+        let len: usize = len.try_into().map_err(|_| {
+            ErrorPath::new(ReadError::SeqLengthViolation(
+                // i32 has a lower limit on 32 bit machines.
+                usize::MAX.min(i32::MAX as usize),
+                len,
+            ))
+        })?;
 
-        let mut vec_buf = Vec::with_capacity((len as usize).min(1024 / size_of::<i64>()));
+        let mut vec_buf = Vec::with_capacity(len.min(1024 / size_of::<i64>()));
         for i in 0..len {
             vec_buf.push(
                 self.i64(buf)
