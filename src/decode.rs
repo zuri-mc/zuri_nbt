@@ -1,7 +1,7 @@
 //! See [Reader].
 use crate::err::{ErrorPath, PathPart, ReadError};
 use bytes::Buf;
-use std::mem;
+use std::{i16, mem};
 
 /// A short notation for the result type used in the [Reader].
 pub type Res<T> = Result<T, ErrorPath<ReadError>>;
@@ -122,5 +122,52 @@ pub trait Reader {
         }
 
         Ok(vec_buf)
+    }
+}
+
+/// Allow for mutable references to readers to be used as a reader.
+impl<T: Reader> Reader for &mut T {
+    fn u8(&mut self, buf: &mut impl Buf) -> Res<u8> {
+        (**self).u8(buf)
+    }
+
+    fn i16(&mut self, buf: &mut impl Buf) -> Res<i16> {
+        (**self).i16(buf)
+    }
+
+    fn i32(&mut self, buf: &mut impl Buf) -> Res<i32> {
+        (**self).i32(buf)
+    }
+
+    fn i64(&mut self, buf: &mut impl Buf) -> Res<i64> {
+        (**self).i64(buf)
+    }
+
+    fn f32(&mut self, buf: &mut impl Buf) -> Res<f32> {
+        (**self).f32(buf)
+    }
+
+    fn f64(&mut self, buf: &mut impl Buf) -> Res<f64> {
+        (**self).f64(buf)
+    }
+
+    fn end(&mut self, buf: &mut impl Buf) -> Res<()> {
+        (**self).end(buf)
+    }
+
+    fn string(&mut self, buf: &mut impl Buf) -> Res<String> {
+        (**self).string(buf)
+    }
+
+    fn u8_vec(&mut self, buf: &mut impl Buf) -> Res<Vec<u8>> {
+        (**self).u8_vec(buf)
+    }
+
+    fn i32_vec(&mut self, buf: &mut impl Buf) -> Res<Vec<i32>> {
+        (**self).i32_vec(buf)
+    }
+
+    fn i64_vec(&mut self, buf: &mut impl Buf) -> Res<Vec<i64>> {
+        (**self).i64_vec(buf)
     }
 }

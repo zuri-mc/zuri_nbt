@@ -145,7 +145,7 @@ macro_rules! impl_tagtype {
             ///
             /// Returns an error if the 'parent' nbt tag is not the same type as the type this
             /// method was called on.
-            pub fn read(buf: &mut impl Buf, r: &mut impl Reader) -> decode::Res<Self> {
+            pub fn read(buf: &mut impl Buf, r: impl Reader) -> decode::Res<Self> {
                 let nbt = NBTTag::read(buf, r)?;
                 let typ = nbt.tag_type().clone();
                 if let $enum_variant2(t) = nbt {
@@ -162,7 +162,7 @@ macro_rules! impl_tagtype {
             /// Attempts to write the NBT data into a buffer using the specified [Writer] encoding.
             ///
             /// Consumes the tag, as it would otherwise require a copy.
-            pub fn write(self, buf: &mut impl BufMut, w: &mut impl Writer) -> encode::Res {
+            pub fn write(self, buf: &mut impl BufMut, w: impl Writer) -> encode::Res {
                 let nbt: NBTTag = self.into();
                 nbt.write(buf, w)
             }

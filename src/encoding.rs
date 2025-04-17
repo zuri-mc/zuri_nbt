@@ -357,9 +357,9 @@ mod tests {
             .with("test5", tag::Compound::default());
         let nbt = NBTTag::Compound(nbt.build());
         let mut buf_writer = BytesMut::default();
-        nbt.write(&mut buf_writer, &mut T::default()).unwrap();
+        nbt.write(&mut buf_writer, T::default()).unwrap();
 
         let mut buf: Bytes = buf_writer.into();
-        assert_eq!(NBTTag::read(&mut buf, &mut T::default()).unwrap(), nbt);
+        assert_eq!(NBTTag::read(&mut buf, T::default()).unwrap(), nbt);
     }
 }

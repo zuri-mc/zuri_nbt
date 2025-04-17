@@ -103,17 +103,17 @@ impl NBTTag {
 
     /// Attempts to read the data from a buffer into an NBT value using the specified [Reader]
     /// encoding.
-    pub fn read(buf: &mut impl Buf, r: &mut impl Reader) -> decode::Res<Self> {
+    pub fn read(buf: &mut impl Buf, mut r: impl Reader) -> decode::Res<Self> {
         let tag_id = r.u8(buf)?;
         r.string(buf)?;
-        Self::read_inner(buf, tag_id, r)
+        Self::read_inner(buf, tag_id, &mut r)
     }
 
     /// Attempts to write the NBT data into a buffer using the specified [Writer] encoding.
-    pub fn write(&self, buf: &mut impl BufMut, w: &mut impl Writer) -> encode::Res {
+    pub fn write(&self, buf: &mut impl BufMut, mut w: impl Writer) -> encode::Res {
         w.write_u8(buf, self.tag_id())?;
         w.write_string(buf, "")?;
-        self.write_inner(buf, w)
+        self.write_inner(buf, &mut w)
     }
 
     /// Internal function used to read NBT data. Slightly differs from [Self::read].

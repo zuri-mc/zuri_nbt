@@ -96,3 +96,50 @@ pub trait Writer {
         Ok(())
     }
 }
+
+/// Allow mutable references to writers to be used as a writer.
+impl<T: Writer> Writer for &mut T {
+    fn write_u8(&mut self, buf: &mut impl BufMut, x: u8) -> Res {
+        (**self).write_u8(buf, x)
+    }
+
+    fn write_i16(&mut self, buf: &mut impl BufMut, x: i16) -> Res {
+        (**self).write_i16(buf, x)
+    }
+
+    fn write_i32(&mut self, buf: &mut impl BufMut, x: i32) -> Res {
+        (**self).write_i32(buf, x)
+    }
+
+    fn write_i64(&mut self, buf: &mut impl BufMut, x: i64) -> Res {
+        (**self).write_i64(buf, x)
+    }
+
+    fn write_f32(&mut self, buf: &mut impl BufMut, x: f32) -> Res {
+        (**self).write_f32(buf, x)
+    }
+
+    fn write_f64(&mut self, buf: &mut impl BufMut, x: f64) -> Res {
+        (**self).write_f64(buf, x)
+    }
+
+    fn write_end(&mut self, buf: &mut impl BufMut) -> Res {
+        (**self).write_end(buf)
+    }
+
+    fn write_string(&mut self, buf: &mut impl BufMut, x: &str) -> Res {
+        (**self).write_string(buf, x)
+    }
+
+    fn write_u8_vec(&mut self, buf: &mut impl BufMut, x: &Vec<u8>) -> Res {
+        (**self).write_u8_vec(buf, x)
+    }
+
+    fn write_i32_vec(&mut self, buf: &mut impl BufMut, x: &Vec<i32>) -> Res {
+        (**self).write_i32_vec(buf, x)
+    }
+
+    fn write_i64_vec(&mut self, buf: &mut impl BufMut, x: &Vec<i64>) -> Res {
+        (**self).write_i64_vec(buf, x)
+    }
+}
