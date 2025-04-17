@@ -4,10 +4,10 @@
 //!  - [BigEndian]
 //!  - [LittleEndian]
 //!  - [NetworkLittleEndian]
-use crate::decode::Reader;
-use crate::encode::Writer;
 use crate::err::{ErrorPath, PathPart, ReadError, WriteError};
-use crate::{decode, encode};
+use crate::reader::Reader;
+use crate::writer::Writer;
+use crate::{reader, writer};
 use bytes::{Buf, BufMut};
 use std::mem;
 
@@ -34,35 +34,35 @@ pub struct LittleEndian;
 pub struct NetworkLittleEndian;
 
 impl Reader for BigEndian {
-    fn i16(&mut self, buf: &mut impl Buf) -> decode::Res<i16> {
+    fn i16(&mut self, buf: &mut impl Buf) -> reader::Res<i16> {
         if buf.remaining() < mem::size_of::<i16>() {
             return Err(ErrorPath::new(ReadError::UnexpectedEOF));
         }
         Ok(buf.get_i16())
     }
 
-    fn i32(&mut self, buf: &mut impl Buf) -> decode::Res<i32> {
+    fn i32(&mut self, buf: &mut impl Buf) -> reader::Res<i32> {
         if buf.remaining() < mem::size_of::<i32>() {
             return Err(ErrorPath::new(ReadError::UnexpectedEOF));
         }
         Ok(buf.get_i32())
     }
 
-    fn i64(&mut self, buf: &mut impl Buf) -> decode::Res<i64> {
+    fn i64(&mut self, buf: &mut impl Buf) -> reader::Res<i64> {
         if buf.remaining() < mem::size_of::<i64>() {
             return Err(ErrorPath::new(ReadError::UnexpectedEOF));
         }
         Ok(buf.get_i64())
     }
 
-    fn f32(&mut self, buf: &mut impl Buf) -> decode::Res<f32> {
+    fn f32(&mut self, buf: &mut impl Buf) -> reader::Res<f32> {
         if buf.remaining() < mem::size_of::<f32>() {
             return Err(ErrorPath::new(ReadError::UnexpectedEOF));
         }
         Ok(buf.get_f32())
     }
 
-    fn f64(&mut self, buf: &mut impl Buf) -> decode::Res<f64> {
+    fn f64(&mut self, buf: &mut impl Buf) -> reader::Res<f64> {
         if buf.remaining() < mem::size_of::<f64>() {
             return Err(ErrorPath::new(ReadError::UnexpectedEOF));
         }
@@ -71,62 +71,62 @@ impl Reader for BigEndian {
 }
 
 impl Writer for BigEndian {
-    fn write_i16(&mut self, buf: &mut impl BufMut, x: i16) -> encode::Res {
+    fn write_i16(&mut self, buf: &mut impl BufMut, x: i16) -> writer::Res {
         buf.put_i16(x);
         Ok(())
     }
 
-    fn write_i32(&mut self, buf: &mut impl BufMut, x: i32) -> encode::Res {
+    fn write_i32(&mut self, buf: &mut impl BufMut, x: i32) -> writer::Res {
         buf.put_i32(x);
         Ok(())
     }
 
-    fn write_i64(&mut self, buf: &mut impl BufMut, x: i64) -> encode::Res {
+    fn write_i64(&mut self, buf: &mut impl BufMut, x: i64) -> writer::Res {
         buf.put_i64(x);
         Ok(())
     }
 
-    fn write_f32(&mut self, buf: &mut impl BufMut, x: f32) -> encode::Res {
+    fn write_f32(&mut self, buf: &mut impl BufMut, x: f32) -> writer::Res {
         buf.put_f32(x);
         Ok(())
     }
 
-    fn write_f64(&mut self, buf: &mut impl BufMut, x: f64) -> encode::Res {
+    fn write_f64(&mut self, buf: &mut impl BufMut, x: f64) -> writer::Res {
         buf.put_f64(x);
         Ok(())
     }
 }
 
 impl Reader for LittleEndian {
-    fn i16(&mut self, buf: &mut impl Buf) -> decode::Res<i16> {
+    fn i16(&mut self, buf: &mut impl Buf) -> reader::Res<i16> {
         if buf.remaining() < mem::size_of::<i16>() {
             return Err(ErrorPath::new(ReadError::UnexpectedEOF));
         }
         Ok(buf.get_i16_le())
     }
 
-    fn i32(&mut self, buf: &mut impl Buf) -> decode::Res<i32> {
+    fn i32(&mut self, buf: &mut impl Buf) -> reader::Res<i32> {
         if buf.remaining() < mem::size_of::<i32>() {
             return Err(ErrorPath::new(ReadError::UnexpectedEOF));
         }
         Ok(buf.get_i32_le())
     }
 
-    fn i64(&mut self, buf: &mut impl Buf) -> decode::Res<i64> {
+    fn i64(&mut self, buf: &mut impl Buf) -> reader::Res<i64> {
         if buf.remaining() < mem::size_of::<i64>() {
             return Err(ErrorPath::new(ReadError::UnexpectedEOF));
         }
         Ok(buf.get_i64_le())
     }
 
-    fn f32(&mut self, buf: &mut impl Buf) -> decode::Res<f32> {
+    fn f32(&mut self, buf: &mut impl Buf) -> reader::Res<f32> {
         if buf.remaining() < mem::size_of::<f32>() {
             return Err(ErrorPath::new(ReadError::UnexpectedEOF));
         }
         Ok(buf.get_f32_le())
     }
 
-    fn f64(&mut self, buf: &mut impl Buf) -> decode::Res<f64> {
+    fn f64(&mut self, buf: &mut impl Buf) -> reader::Res<f64> {
         if buf.remaining() < mem::size_of::<f64>() {
             return Err(ErrorPath::new(ReadError::UnexpectedEOF));
         }
@@ -135,41 +135,41 @@ impl Reader for LittleEndian {
 }
 
 impl Writer for LittleEndian {
-    fn write_i16(&mut self, buf: &mut impl BufMut, x: i16) -> encode::Res {
+    fn write_i16(&mut self, buf: &mut impl BufMut, x: i16) -> writer::Res {
         buf.put_i16_le(x);
         Ok(())
     }
 
-    fn write_i32(&mut self, buf: &mut impl BufMut, x: i32) -> encode::Res {
+    fn write_i32(&mut self, buf: &mut impl BufMut, x: i32) -> writer::Res {
         buf.put_i32_le(x);
         Ok(())
     }
 
-    fn write_i64(&mut self, buf: &mut impl BufMut, x: i64) -> encode::Res {
+    fn write_i64(&mut self, buf: &mut impl BufMut, x: i64) -> writer::Res {
         buf.put_i64_le(x);
         Ok(())
     }
 
-    fn write_f32(&mut self, buf: &mut impl BufMut, x: f32) -> encode::Res {
+    fn write_f32(&mut self, buf: &mut impl BufMut, x: f32) -> writer::Res {
         buf.put_f32_le(x);
         Ok(())
     }
 
-    fn write_f64(&mut self, buf: &mut impl BufMut, x: f64) -> encode::Res {
+    fn write_f64(&mut self, buf: &mut impl BufMut, x: f64) -> writer::Res {
         buf.put_f64_le(x);
         Ok(())
     }
 }
 
 impl Reader for NetworkLittleEndian {
-    fn i16(&mut self, buf: &mut impl Buf) -> decode::Res<i16> {
+    fn i16(&mut self, buf: &mut impl Buf) -> reader::Res<i16> {
         if buf.remaining() < mem::size_of::<u8>() {
             return Err(ErrorPath::new(ReadError::UnexpectedEOF));
         }
         Ok(buf.get_i16_le())
     }
 
-    fn i32(&mut self, buf: &mut impl Buf) -> decode::Res<i32> {
+    fn i32(&mut self, buf: &mut impl Buf) -> reader::Res<i32> {
         let mut v: u32 = 0;
         for i in (0..35).step_by(7) {
             if buf.remaining() < mem::size_of::<u8>() {
@@ -188,7 +188,7 @@ impl Reader for NetworkLittleEndian {
         )))
     }
 
-    fn i64(&mut self, buf: &mut impl Buf) -> decode::Res<i64> {
+    fn i64(&mut self, buf: &mut impl Buf) -> reader::Res<i64> {
         let mut v: u64 = 0;
         for i in (0..70).step_by(7) {
             if buf.remaining() < mem::size_of::<u8>() {
@@ -207,21 +207,21 @@ impl Reader for NetworkLittleEndian {
         )))
     }
 
-    fn f32(&mut self, buf: &mut impl Buf) -> decode::Res<f32> {
+    fn f32(&mut self, buf: &mut impl Buf) -> reader::Res<f32> {
         if buf.remaining() < mem::size_of::<f32>() {
             return Err(ErrorPath::new(ReadError::UnexpectedEOF));
         }
         Ok(buf.get_f32_le())
     }
 
-    fn f64(&mut self, buf: &mut impl Buf) -> decode::Res<f64> {
+    fn f64(&mut self, buf: &mut impl Buf) -> reader::Res<f64> {
         if buf.remaining() < mem::size_of::<f64>() {
             return Err(ErrorPath::new(ReadError::UnexpectedEOF));
         }
         Ok(buf.get_f64_le())
     }
 
-    fn string(&mut self, buf: &mut impl Buf) -> decode::Res<String> {
+    fn string(&mut self, buf: &mut impl Buf) -> reader::Res<String> {
         let len = 'var_len: {
             let mut v: u32 = 0;
             for i in (0..35).step_by(7) {
@@ -253,17 +253,17 @@ impl Reader for NetworkLittleEndian {
 }
 
 impl Writer for NetworkLittleEndian {
-    fn write_u8(&mut self, buf: &mut impl BufMut, x: u8) -> encode::Res {
+    fn write_u8(&mut self, buf: &mut impl BufMut, x: u8) -> writer::Res {
         buf.put_u8(x);
         Ok(())
     }
 
-    fn write_i16(&mut self, buf: &mut impl BufMut, x: i16) -> encode::Res {
+    fn write_i16(&mut self, buf: &mut impl BufMut, x: i16) -> writer::Res {
         buf.put_i16_le(x);
         Ok(())
     }
 
-    fn write_i32(&mut self, buf: &mut impl BufMut, x: i32) -> encode::Res {
+    fn write_i32(&mut self, buf: &mut impl BufMut, x: i32) -> writer::Res {
         let mut u = (x as u32) << 1;
         if x < 0 {
             u = !u;
@@ -276,7 +276,7 @@ impl Writer for NetworkLittleEndian {
         Ok(())
     }
 
-    fn write_i64(&mut self, buf: &mut impl BufMut, x: i64) -> encode::Res {
+    fn write_i64(&mut self, buf: &mut impl BufMut, x: i64) -> writer::Res {
         let mut u = (x as u64) << 1;
         if x < 0 {
             u = !u;
@@ -289,17 +289,17 @@ impl Writer for NetworkLittleEndian {
         Ok(())
     }
 
-    fn write_f32(&mut self, buf: &mut impl BufMut, x: f32) -> encode::Res {
+    fn write_f32(&mut self, buf: &mut impl BufMut, x: f32) -> writer::Res {
         buf.put_f32_le(x);
         Ok(())
     }
 
-    fn write_f64(&mut self, buf: &mut impl BufMut, x: f64) -> encode::Res {
+    fn write_f64(&mut self, buf: &mut impl BufMut, x: f64) -> writer::Res {
         buf.put_f64_le(x);
         Ok(())
     }
 
-    fn write_string(&mut self, buf: &mut impl BufMut, x: &str) -> encode::Res {
+    fn write_string(&mut self, buf: &mut impl BufMut, x: &str) -> writer::Res {
         if x.len() > i16::MAX as usize {
             return Err(ErrorPath::new(WriteError::SeqLengthViolation(
                 i16::MAX as usize,
@@ -323,9 +323,9 @@ impl Writer for NetworkLittleEndian {
 /// Test all encodings with various data.
 #[cfg(test)]
 mod tests {
-    use crate::decode::Reader;
-    use crate::encode::Writer;
     use crate::encoding::{BigEndian, LittleEndian, NetworkLittleEndian};
+    use crate::reader::Reader;
+    use crate::writer::Writer;
     use crate::{tag, NBTTag};
     use bytes::{Bytes, BytesMut};
 
