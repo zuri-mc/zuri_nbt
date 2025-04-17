@@ -15,6 +15,9 @@ pub enum ReadError {
     /// types.
     #[error("expected tag {0}, found {1}")]
     UnexpectedTag(String, String),
+    /// The reader found an unrecognised tag ID.
+    #[error("unknown tag type {0:x}")]
+    UnknownTag(u8),
     /// The length prefix found in the buffer for a sequence is not in the acceptable bounds for
     /// that type.
     #[error("sequence length must be between 0 and {0}, but got {1}")]

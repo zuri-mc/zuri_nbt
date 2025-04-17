@@ -161,7 +161,7 @@ impl NBTTag {
             7 => NBTTag::ByteArray(r.u8_vec(buf)?.into()),
             11 => NBTTag::IntArray(r.i32_vec(buf)?.into()),
             12 => NBTTag::LongArray(r.i64_vec(buf)?.into()),
-            _ => panic!("Unknown tag type {}", tag_id),
+            other => return Err(ErrorPath::new(ReadError::UnknownTag(other))),
         })
     }
 
