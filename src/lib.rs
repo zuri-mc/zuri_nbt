@@ -95,7 +95,7 @@ impl NBTTag {
     }
 
     /// Creates a [View] for the NBT tag for easy reading.
-    pub fn view(&self) -> View {
+    pub fn view(&'_ self) -> View<'_> {
         View::new(self)
     }
 
