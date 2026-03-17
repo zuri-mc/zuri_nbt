@@ -201,7 +201,7 @@ impl NBTTag {
                 for i in 0..len {
                     vec.push(
                         Self::read_inner(buf, content_type, r)
-                            .map_err(|err| err.prepend(PathPart::Element(i as usize)))?,
+                            .map_err(|err| err.prepend(PathPart::Element(i)))?,
                     );
                 }
                 NBTTag::List(vec.into())

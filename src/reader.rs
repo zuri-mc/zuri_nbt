@@ -1,6 +1,6 @@
 //! See [Reader].
 use crate::err::{NBTError, PathPart, ReadError};
-use std::{i16, io::Read};
+use std::io::Read;
 
 /// A short notation for the result type used in the [Reader].
 pub type Res<T> = Result<T, NBTError<ReadError>>;
@@ -55,7 +55,7 @@ pub trait Reader {
         for i in 0..len {
             str_buf.push(
                 self.u8(reader)
-                    .map_err(|err| err.prepend(PathPart::Element(i as usize)))?,
+                    .map_err(|err| err.prepend(PathPart::Element(i)))?,
             );
         }
 
@@ -77,7 +77,7 @@ pub trait Reader {
         for i in 0..len {
             vec_buf.push(
                 self.u8(reader)
-                    .map_err(|err| err.prepend(PathPart::Element(i as usize)))?,
+                    .map_err(|err| err.prepend(PathPart::Element(i)))?,
             );
         }
 
@@ -99,7 +99,7 @@ pub trait Reader {
         for i in 0..len {
             vec_buf.push(
                 self.i32(reader)
-                    .map_err(|err| err.prepend(PathPart::Element(i as usize)))?,
+                    .map_err(|err| err.prepend(PathPart::Element(i)))?,
             );
         }
 
@@ -121,7 +121,7 @@ pub trait Reader {
         for i in 0..len {
             vec_buf.push(
                 self.i64(reader)
-                    .map_err(|err| err.prepend(PathPart::Element(i as usize)))?,
+                    .map_err(|err| err.prepend(PathPart::Element(i)))?,
             );
         }
 
