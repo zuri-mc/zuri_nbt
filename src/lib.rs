@@ -21,6 +21,42 @@ pub mod tag;
 pub mod view;
 pub mod writer;
 
+/// Complete NBT data, including a root tag name and NBT data.
+///
+/// This mainly exists to expose the NBT root tag name. If this is not important to you, you can
+/// also directly use the [NBTTag] type.
+#[derive(Debug, Clone, PartialEq)]
+pub struct NBTRoot {
+    /// The root tag name is a string stored along with the top-level tag in NBT data.
+    ///
+    /// In a lot of cases this will be an empty string.
+    pub tag_name: String,
+    /// The actual NBT data. The root of NBT data is often a compound tag.
+    pub data: NBTTag,
+}
+
+impl NBTRoot {
+    /// See [NBTTag::read].
+    pub fn read<R: Read>(mut buf: R, mut r: impl Reader) -> reader::Res<Self> {
+        let buf = &mut buf;
+        let tag_id = r.u8(buf)?;
+        let tag_name = r.string(buf)?;
+        Ok(Self {
+            tag_name,
+            data: NBTTag::read_inner(buf, tag_id, &mut r)?,
+        })
+    }
+
+    /// See [NBTTag::write]. This variant writes a user-specified `tag_name`, while NBTTag writes an
+    /// empty string.
+    pub fn write<W: Write>(&self, mut buf: W, mut w: impl Writer) -> writer::Res {
+        let buf = &mut buf;
+        w.write_u8(buf, self.data.tag_id())?;
+        w.write_string(buf, &self.tag_name)?;
+        self.data.write_inner(buf, &mut w)
+    }
+}
+
 /// An enum representing all possible NBT data.
 #[derive(Debug, Clone, PartialEq)]
 pub enum NBTTag {
@@ -101,6 +137,8 @@ impl NBTTag {
 
     /// Attempts to read the data from a buffer into an NBT value using the specified [Reader]
     /// encoding.
+    ///
+    /// The root tag name is discarded. If you need it, consider using [NBTRoot::read].
     pub fn read<R: Read>(mut buf: R, mut r: impl Reader) -> reader::Res<Self> {
         let buf = &mut buf;
         let tag_id = r.u8(buf)?;
@@ -229,6 +267,15 @@ impl NBTTag {
             NBTTag::ByteArray(_) => 7,
             NBTTag::IntArray(_) => 11,
             NBTTag::LongArray(_) => 12,
+        }
+    }
+}
+
+impl Default for NBTRoot {
+    fn default() -> Self {
+        Self {
+            tag_name: String::new(),
+            data: NBTTag::Compound(HashMap::new().into()),
         }
     }
 }
