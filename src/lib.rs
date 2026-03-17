@@ -135,6 +135,14 @@ impl NBTTag {
         View::new(self)
     }
 
+    /// Wrap the NBTTag in [NBTRoot], giving the root tag a name when writing.
+    pub fn with_tag_name(self, tag_name: impl Into<String>) -> NBTRoot {
+        NBTRoot {
+            tag_name: tag_name.into(),
+            data: self,
+        }
+    }
+
     /// Attempts to read the data from a buffer into an NBT value using the specified [Reader]
     /// encoding.
     ///
